@@ -7,13 +7,78 @@ require_relative './model.rb'
 enable :sessions
 
 get('/') do
-    slim(:register)
+  slim(:index)
 end
 
 get('/skis') do
-    id = session[:id].to_i
-    db = SQLite3::Database.new("db/todo2022.db")
-    db.results_as_hash = true
-    @skis = db.execute("SELECT * FROM skis WHERE user_id = ?",id)
-    slim(:"skis/index")
+  id = session[:id].to_i
+  @skis = select_all("skis")
+  slim(:"skis/index")
 end
+
+get('/skis/new') do
+  slim(:"skis/new")
+end
+
+post('/skis/new') do
+  modelname = params[:modelname]
+  brand = params[:brand]
+  length = params[:length]
+  frontwidth = params[:frontwidth]
+  waistwidth = params[:waistwidth]
+  tailwidth = params[:tailwidth]
+  skitype = params[:skitype]
+
+  insert_skis(brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
+  redirect('/skis')
+  
+  # user_id = session[:id].to_i
+  # if content != " "
+  # else
+  #   session[:fault] = "ski name"
+  #   redirect('fault')
+  # end
+end
+  
+post('/skis/:id/delete') do
+  id = params[:id].to_i
+  db = SQLite3::Database.new("db/slpws23.db")
+  db.execute("DELETE FROM skis WHERE id = ?",id)
+  redirect('/skis')
+end
+
+post('/skis/:id/update') do
+  id = params[:id].to_i
+  content = params[:content]
+  user_id = params[:user_id].to_i
+  if content != " "
+    db = SQLite3::Database.new("db/slpws23.db")
+    db.execute("UPDATE skis SET content = ? WHERE id = ?",content,id)
+    redirect('/skis')
+  else
+    session[:fault] = "ski name"
+    redirect('fault')
+  end
+end
+
+get('/skis/:id/edit') do
+  @id = params[:id].to_i
+  db = SQLite3::Database.new("db/slpws23.db")
+  db.results_as_hash = true
+  @ski = db.execute("SELECT * FROM skis WHERE id = ?",@id).first
+  slim(:"skis/edit")
+end
+
+
+# get('/helmets') do
+#     id = session[:id].to_i
+#     db = SQLite3::Database.new("db/slpws23.db")
+#     db.results_as_hash = true
+#     @helmets = db.execute("SELECT * FROM helmets")
+#     # @helmets = select_all("helmets")
+#     slim(:"helmets/index")
+# end
+
+# get('/helmets/new') do
+#     slim(:"helmets/new")
+# end

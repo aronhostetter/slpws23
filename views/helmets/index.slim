@@ -1,0 +1,15 @@
+h2 Alla hjälmar!
+
+- if @helmets != []
+    - @helmets.each do |helmet|
+        li
+            p = helmet["modelname"]
+            form action="/helmets/#{helmet['id']}/edit" method="get"
+                input type="submit" value="uppdatera"
+            form action="/helmets/#{helmet['id']}/delete" method="post"
+                input type="submit" value="ta bort"
+- else
+    h3 Tryck på knappen nedan för att lägga till hemsidans första hjälm!
+
+form action="/helmets/new" method="get"
+    input type="submit" value="ADD NEW"

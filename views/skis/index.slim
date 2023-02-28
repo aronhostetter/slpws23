@@ -1,0 +1,24 @@
+h2 Alla skidor!
+
+- if @skis != []
+    ul
+        - @skis.each do |ski|
+            li.product
+                - if ski["img_source"] == nil || ski["skitype"] == nil
+                    - ski["img_source"] = "img/notfound.webp"
+                    - ski["skitype"] = "Not found"
+
+                p = ski["brand"] + " " + ski["modelname"]
+                img.product src="#{ski["img_source"]}" alt="#{ski["modelname"]}"/
+                p = "Skidtyp: " + ski["skitype"]
+                p Längd: #{ski["length"]} cm
+                p Bredd: #{ski["frontwidth"]}/#{ski["waistwidth"]}/#{ski["tailwidth"]} mm 
+                form action="/skis/#{ski['id']}/edit" method="get"
+                    input type="submit" value="uppdatera"
+                form action="/skis/#{ski['id']}/delete" method="post"
+                    input type="submit" value="ta bort"
+- else
+    h3 Tryck på knappen nedan för att lägga till hemsidans första skida!
+
+form action="/skis/new" method="get"
+    input type="submit" value="ADD NEW"
