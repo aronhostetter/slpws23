@@ -1,0 +1,40 @@
+ul
+    h2 Produkten ser ut såhär:
+    li.product
+        - if @ski["img_source"] == nil || @ski["skitype"] == nil
+            - @ski["img_source"] = "/img/notfound.webp"
+            - @ski["skitype"] = "Not found"
+
+        p = @ski["brand"] + " " + @ski["modelname"]
+        img.product src="#{@ski["img_source"]}" alt="#{@ski["modelname"]}"/
+        p = "Skidtyp: " + @ski["skitype"]
+        p Längd: #{@ski["length"]} cm
+        p Bredd: #{@ski["frontwidth"]}/#{@ski["waistwidth"]}/#{@ski["tailwidth"]} mm
+
+    h2 Hur vill du att den ska se ut?
+    li
+        form.product action="/skis/#{@id}/update" method="post"
+            <input type="text" name="brand" placeholder="Märke" required>
+            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            
+            .addimage
+                <input type="file" name="image">
+
+            .radios
+                .radio
+                    <input type="radio" id="offpist" name="skitype" value="Offpist">
+                    <label for="offpist">Offpist</label>
+                .radio
+                    <input type="radio" id="allmountain" name="skitype" value="Allmountain">
+                    <label for="allmountain">Allmountain</label>
+                .radio
+                    <input type="radio" id="touring" name="skitype" value="Touring">
+                    <label for="touring">Touring</label>
+
+            .numbers
+                <input type="number" name="length" placeholder="Längd (cm)" min="150" max="200" required>
+                <input type="number" name="frontwidth" placeholder="Främre bredd (mm)" min="80" max="220" required>
+                <input type="number" name="waistwidth" placeholder="Midjebredd (mm)" min="60" max="150" required>
+                <input type="number" name="tailwidth" placeholder="Bakre bredd (mm)" min="70" max="200" required>
+
+            input type="submit" value="ändra"

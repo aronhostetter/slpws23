@@ -5,7 +5,7 @@ h2 Alla skidor!
         - @skis.each do |ski|
             li.product
                 - if ski["img_source"] == nil || ski["skitype"] == nil
-                    - ski["img_source"] = "img/notfound.webp"
+                    - ski["img_source"] = "/img/notfound.webp"
                     - ski["skitype"] = "Not found"
 
                 p = ski["brand"] + " " + ski["modelname"]

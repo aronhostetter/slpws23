@@ -47,25 +47,37 @@ post('/skis/:id/delete') do
   redirect('/skis')
 end
 
+
+#   FORTSÄTT HÄR
 post('/skis/:id/update') do
   id = params[:id].to_i
   content = params[:content]
   user_id = params[:user_id].to_i
-  if content != " "
-    db = SQLite3::Database.new("db/slpws23.db")
-    db.execute("UPDATE skis SET content = ? WHERE id = ?",content,id)
-    redirect('/skis')
-  else
-    session[:fault] = "ski name"
-    redirect('fault')
-  end
+  
+  modelname = params[:modelname]
+  brand = params[:brand]
+  length = params[:length]
+  frontwidth = params[:frontwidth]
+  waistwidth = params[:waistwidth]
+  tailwidth = params[:tailwidth]
+  skitype = params[:skitype]
+  
+  update_skis(id,brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
+  redirect('/skis')
+
+  # if content != " "
+  #   db = SQLite3::Database.new("db/slpws23.db")
+  #   db.execute("UPDATE skis SET content = ? WHERE id = ?",content,id)
+  #   redirect('/skis')
+  # else
+  #   session[:fault] = "ski name"
+  #   redirect('fault')
+  # end
 end
 
 get('/skis/:id/edit') do
   @id = params[:id].to_i
-  db = SQLite3::Database.new("db/slpws23.db")
-  db.results_as_hash = true
-  @ski = db.execute("SELECT * FROM skis WHERE id = ?",@id).first
+  @ski = select_all_id("skis",@id)[0]
   slim(:"skis/edit")
 end
 
