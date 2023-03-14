@@ -1,0 +1,35 @@
+ul
+    
+    li.product
+        h2 Produkten ser ut såhär:
+        - if @helmet["img_source"] == nil 
+            - @helmet["img_source"] = "/img/notfound.jpg"
+            
+        h3 = @helmet["brand"] + " " + @helmet["modelname"]
+        img.product src="#{@helmet["img_source"]}" alt="#{@helmet["modelname"]}"/
+        - if @helmet["mips"] == 1
+            p = "MIPS: " + "Ja"
+        - elsif  @helmet["mips"] == 0
+            p = "MIPS: " + "Nej"
+        / - else error
+        p Färg: #{@helmet["color"]}
+
+    li
+        h2 Hur vill du att den ska se ut?
+        form.product action="/helmets/#{@id}/update" method="post"
+            <input type="text" name="brand" placeholder="Märke" required>
+            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            
+            .addimage
+                <input type="file" name="image">
+            
+            .numbers
+                <label for="mips">Har hjälmen MIPS?</label>
+                <select name="mips" id="mips">
+                <option value="1">Ja</option>
+                <option value="0">Nej</option>
+
+            .numbers
+                <input type="text" name="color" placeholder="Färg" required>
+
+            input type="submit" value="ändra"

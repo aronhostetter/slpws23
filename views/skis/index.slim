@@ -4,15 +4,17 @@ h2 Alla skidor!
     ul
         - @skis.each do |ski|
             li.product
-                - if ski["img_source"] == nil || ski["skitype"] == nil
-                    - ski["img_source"] = "/img/notfound.webp"
+                - if ski["img_source"] == nil 
+                    - ski["img_source"] = "/img/notfound.jpg"
+                - elsif ski["skitype"] == nil
                     - ski["skitype"] = "Not found"
 
-                p = ski["brand"] + " " + ski["modelname"]
+                h3 = ski["brand"] + " " + ski["modelname"]
                 img.product src="#{ski["img_source"]}" alt="#{ski["modelname"]}"/
                 p = "Skidtyp: " + ski["skitype"]
                 p Längd: #{ski["length"]} cm
-                p Bredd: #{ski["frontwidth"]}/#{ski["waistwidth"]}/#{ski["tailwidth"]} mm 
+                p Bredd: #{ski["frontwidth"]}/#{ski["waistwidth"]}/#{ski["tailwidth"]} mm
+
                 form action="/skis/#{ski['id']}/edit" method="get"
                     input type="submit" value="uppdatera"
                 form action="/skis/#{ski['id']}/delete" method="post"

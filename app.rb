@@ -6,20 +6,26 @@ require 'sinatra/reloader'
 require_relative './model.rb'
 enable :sessions
 
+#     HOME  ALL
 get('/') do
   slim(:index)
 end
 
+#     CRUD SKIS
+
+#     SKIS  VIEW
 get('/skis') do
   id = session[:id].to_i
   @skis = select_all("skis")
   slim(:"skis/index")
 end
 
+#     SKIS  POST NEW
 get('/skis/new') do
   slim(:"skis/new")
 end
 
+#     POST NEW
 post('/skis/new') do
   modelname = params[:modelname]
   brand = params[:brand]
@@ -39,7 +45,8 @@ post('/skis/new') do
   #   redirect('fault')
   # end
 end
-  
+
+#     SKIS  DELETE
 post('/skis/:id/delete') do
   id = params[:id].to_i
   db = SQLite3::Database.new("db/slpws23.db")
@@ -48,12 +55,9 @@ post('/skis/:id/delete') do
 end
 
 
-#   FORTSÄTT HÄR
+#     SKIS UPDATE
 post('/skis/:id/update') do
-  id = params[:id].to_i
-  content = params[:content]
-  user_id = params[:user_id].to_i
-  
+  id = params[:id].to_i  
   modelname = params[:modelname]
   brand = params[:brand]
   length = params[:length]
@@ -75,22 +79,63 @@ post('/skis/:id/update') do
   # end
 end
 
+#     SKIS EDIT
 get('/skis/:id/edit') do
   @id = params[:id].to_i
+  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
   @ski = select_all_id("skis",@id)[0]
   slim(:"skis/edit")
 end
 
+#     CRUD HELMETS
+#
+#     HELMETS  VIEW
+get('/helmets') do
+  id = session[:id].to_i
+  @helmets = select_all("helmets")
+  slim(:"helmets/index")
+end
 
-# get('/helmets') do
-#     id = session[:id].to_i
-#     db = SQLite3::Database.new("db/slpws23.db")
-#     db.results_as_hash = true
-#     @helmets = db.execute("SELECT * FROM helmets")
-#     # @helmets = select_all("helmets")
-#     slim(:"helmets/index")
-# end
+#     HELMETS  POST NEW
+get('/helmets/new') do
+  slim(:"helmets/new")
+end
 
-# get('/helmets/new') do
-#     slim(:"helmets/new")
-# end
+#     POST NEW
+post('/helmets/new') do
+  modelname = params[:modelname]
+  brand = params[:brand]
+  mips = params[:mips]
+  color = params[:color]
+
+  insert_helmets(brand,modelname,mips,color)
+  redirect('/helmets')
+end
+
+#     HELMETS  DELETE
+post('/helmets/:id/delete') do
+  id = params[:id].to_i
+  db = SQLite3::Database.new("db/slpws23.db")
+  db.execute("DELETE FROM helmets WHERE id = ?",id)
+  redirect('/helmets')
+end
+
+#     HELMETS UPDATE
+post('/helmets/:id/update') do
+  id = params[:id].to_i
+  modelname = params[:modelname]
+  brand = params[:brand]
+  mips = params[:mips]
+  color = params[:color]
+  
+  update_helmets(id,brand,modelname,mips,color)
+  redirect('/helmets')
+end
+
+#     HELMETS EDIT
+get('/helmets/:id/edit') do
+  @id = params[:id].to_i
+  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
+  @helmet = select_all_id("helmets",@id)[0]
+  slim(:"helmets/edit")
+end

@@ -26,9 +26,9 @@ form {
 ul {
     list-style-type: none;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: left;
     align-items: center;
-    gap: 15px;
+    gap: 100px;
     flex-wrap: wrap;
 }
 
@@ -36,7 +36,7 @@ li,
 form.product {
     padding: 15px;
     background-color: wheat;
-    width: 275px;
+    width: 350px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -49,6 +49,8 @@ form.product {
 
 img.product {
     height: 300px;
+    padding: 10px;
+    background-color: white;
 }
 
 .addimage {
@@ -62,8 +64,10 @@ img.product {
 }
 
 .numbers input,
+.numbers label,
+.numbers select,
 .numbers {
-    width: 200px;
+    width: 150px;
 }
 
 .radio {

@@ -1,13 +1,25 @@
 h2 Alla hjälmar!
 
 - if @helmets != []
-    - @helmets.each do |helmet|
-        li
-            p = helmet["modelname"]
-            form action="/helmets/#{helmet['id']}/edit" method="get"
-                input type="submit" value="uppdatera"
-            form action="/helmets/#{helmet['id']}/delete" method="post"
-                input type="submit" value="ta bort"
+    ul
+        - @helmets.each do |helmet|
+            li.product
+                - if helmet["img_source"] == nil 
+                    - helmet["img_source"] = "/img/notfound.jpg"
+
+                h3 = helmet["brand"] + " " + helmet["modelname"]
+                img.product src="#{helmet["img_source"]}" alt="#{helmet["modelname"]}"/
+                - if helmet["mips"] == 1
+                    p = "MIPS: " + "Ja"
+                - elsif  helmet["mips"] == 0
+                    p = "MIPS: " + "Nej"
+                / - else error
+                p Färg: #{helmet["color"]}
+
+                form action="/helmets/#{helmet['id']}/edit" method="get"
+                    input type="submit" value="uppdatera"
+                form action="/helmets/#{helmet['id']}/delete" method="post"
+                    input type="submit" value="ta bort"
 - else
     h3 Tryck på knappen nedan för att lägga till hemsidans första hjälm!
 
