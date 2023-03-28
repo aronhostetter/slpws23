@@ -11,6 +11,52 @@ get('/') do
   slim(:index)
 end
 
+#     USERS
+
+get('/register') do
+  slim(:register)
+end
+
+get('/showlogin') do
+  slim(:login)
+end
+
+post('/login') do
+  username = params[:username]
+  password = params[:password]
+  db = SQLite3::Database.new("db/slpws23.db")
+  db.results_as_hash = true
+  result = db.execute("SELECT * FROM users WHERE username = ?",username).first
+  pwdigest = result["pwdigest"]
+  id = result["id"]
+  if BCrypt::Password.new(pwdigest) == password
+    session[:id] = id
+    session[:username] = username
+    redirect('/todos')
+  # else
+    # session[:fault] = "login"
+    # redirect('fault')
+  end
+end
+
+post('/users/new') do
+  username = params[:username]
+  password = params[:password]
+  password_confirm = params[:password_confirm]
+
+  if (password == password_confirm)
+    #lägg till ny användare
+    password_digest = BCrypt::Password.create(password)
+    create_user(password_digest)
+    db = SQLite3::Database.new("db/slpws23.db")
+    db.execute("INSERT INTO users (username,pwdigest) VALUES (?,?)",username,password_digest)
+    redirect('/showlogin')
+  # else
+  #   session[:fault] = "register user"
+  #   redirect('fault')
+  end
+end
+
 #     CRUD SKIS
 
 #     SKIS VIEW
@@ -25,7 +71,7 @@ get('/skis/new') do
   slim(:"skis/new")
 end
 
-#     POST NEW
+#     SKIS  POST NEW
 post('/skis/new') do
   modelname = params[:modelname]
   brand = params[:brand]
@@ -99,7 +145,7 @@ get('/helmets/new') do
   slim(:"helmets/new")
 end
 
-#     POST NEW
+#     HELMETS POST NEW
 post('/helmets/new') do
   modelname = params[:modelname]
   brand = params[:brand]
@@ -138,7 +184,7 @@ get('/helmets/:id/edit') do
 end
 
 #     CRUD bindings
-
+#
 #     BINDINGS  VIEW
 get('/bindings') do
   id = session[:id].to_i
@@ -146,12 +192,12 @@ get('/bindings') do
   slim(:"bindings/index")
 end
 
-#     BINDINGS  POST NEW
+#     BINDINGS  GET NEW
 get('/bindings/new') do
   slim(:"bindings/new")
 end
 
-#     POST NEW
+#     BINDINGS  POST NEW
 post('/bindings/new') do
   modelname = params[:modelname]
   brand = params[:brand]

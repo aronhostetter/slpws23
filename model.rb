@@ -1,17 +1,27 @@
+require 'sinatra'
 require 'sinatra/reloader'
+
+###     CONNECT TO DB
+def connect_db()
+    db = SQLite3::Database.new("db/slpws23.db")
+    # if hash == 1
+    #     db.results_as_hash = true
+    # end
+    return db
+end
 
 ###     GENERELL SQL
 
 def select_all(category)
     # p category
-    db = SQLite3::Database.new("db/slpws23.db")
+    db = connect_db()
     db.results_as_hash = true
     return db.execute("SELECT * FROM #{category}")
 end
 
 def select_all_id(category,id)
     # p category,id
-    db = SQLite3::Database.new("db/slpws23.db")
+    db = connect_db()
     db.results_as_hash = true
     return db.execute("SELECT * FROM #{category} WHERE id = ?", id)
 end
@@ -21,6 +31,12 @@ def delete_all_id(category,id)
     return db.execute("DELETE FROM #{category} WHERE id = ?", id)
 end
 
+###     USERS
+
+def create_user(username,pwdigest)
+    db = SQLite3::Database.new("db/slpws23.db")
+    db.execute("INSERT INTO users (username,pwdigest) VALUES (?,?)",username,password_digest)
+end
 
 ###     SKIS
 
@@ -59,7 +75,7 @@ def insert_bindings(brand,modelname,type,weight)
 end
 
 def update_bindings(id,brand,modelname,type,weight)
-    p id,brand,modelname,type,weight
+    # p id,brand,modelname,type,weight
     db = SQLite3::Database.new("db/slpws23.db")
     db.execute("UPDATE bindings SET modelname = ?,brand = ?,type = ?,weight = ? WHERE id = ?",modelname,brand,type,weight,id)
 end
