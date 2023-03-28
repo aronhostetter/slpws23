@@ -1,5 +1,21 @@
-h2 Skapa ny todo
+h2 Lägg till hjälm
+ul
+    li
+        form.product action="/helmets/new" method="post"
+            <input type="text" name="brand" placeholder="Märke" required>
+            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            
+            .addimage
+                <input type="file" name="image">
+            
+            .numbers
+                <label for="mips">Har hjälmen MIPS?</label>
+                <select name="mips" id="mips">
+                <option value="1">Ja</option>
+                <option value="0">Nej</option>
 
-form action="/todos/new" method="post"
-    <input type="text" name="content" placeholder="Jag måste..." required>
-    input type="submit" value="klar"
+            .numbers
+                <input type="text" name="color" placeholder="Färg" required>
+
+            / input.submit type="submit" value="Lägg till"
+            input.submit type="image" src="/img/addsymbol.png" alt="Submit" width="30" height="30"

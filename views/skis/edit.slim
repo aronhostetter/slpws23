@@ -1,6 +1,6 @@
 ul
-    h2 Produkten ser ut såhär:
     li.product
+        h2 Produkten ser ut såhär:
         - if @ski["img_source"] == nil
             - @ski["img_source"] = "/img/notfound.jpg"
         - elsif @ski["skitype"] == nil
@@ -13,8 +13,9 @@ ul
         p Längd: #{@ski["length"]} cm
         p Bredd: #{@ski["frontwidth"]}/#{@ski["waistwidth"]}/#{@ski["tailwidth"]} mm
 
-    h2 Hur vill du att den ska se ut?
+
     li
+        h2 Hur vill du att den ska se ut?
         form.product action="/skis/#{@id}/update" method="post"
             <input type="text" name="brand" placeholder="Märke" required>
             <input type="text" name="modelname" placeholder="Modellnamn" required>
@@ -22,16 +23,12 @@ ul
             .addimage
                 <input type="file" name="image">
 
-            .radios
-                .radio
-                    <input type="radio" id="offpist" name="skitype" value="offpist">
-                    <label for="offpist">offpist</label>
-                .radio
-                    <input type="radio" id="allmountain" name="skitype" value="allmountain">
-                    <label for="allmountain">allmountain</label>
-                .radio
-                    <input type="radio" id="touring" name="skitype" value="touring">
-                    <label for="touring">touring</label>
+            .numbers
+                <label for="skitype" required>Vilken skidtyp?</label>
+                <select name="skitype" id="skitype">
+                <option value="offpist">Offpist</option>
+                <option value="allmountain">Allmountain</option>
+                <option value="touring">Touring</option>
 
             .numbers
                 <input type="number" name="length" placeholder="Längd (cm)" min="150" max="200" required>

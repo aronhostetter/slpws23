@@ -1,0 +1,32 @@
+ul
+    li.product
+        - if @binding["img_source"] == nil 
+            - @binding["img_source"] = "/img/notfound.jpg"
+        - elsif @binding["type"] == nil
+            - @binding["type"] = "Not found"
+
+        h3 = @binding["brand"] + " " + @binding["modelname"]
+        img.product src="#{@binding["img_source"]}" alt="#{@binding["modelname"]}"/
+        p = "Bindningstyp: " + @binding["type"]
+        p Vikt: #{@binding["weight"]} g
+
+    li
+        h2 Hur vill du att den ska se ut?
+        form.product action="/bindings/#{@id}/update" method="post"
+            <input type="text" name="brand" placeholder="Märke" required>
+            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            
+            .addimage
+                <input type="file" name="image">
+            
+            .numbers
+                <label for="skitype" required>Vilken skidtyp?</label>
+                <select name="skitype" id="skitype">
+                <option value="offpist">Alpine</option>
+                <option value="allmountain">Hybrid</option>
+                <option value="touring">Touring</option>
+
+            .numbers
+                <input type="number" name="weight" placeholder="Vikt (gram)" min="50" max="3000" required>
+
+            input type="submit" value="ändra"

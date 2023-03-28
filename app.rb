@@ -13,14 +13,14 @@ end
 
 #     CRUD SKIS
 
-#     SKIS  VIEW
+#     SKIS VIEW
 get('/skis') do
   id = session[:id].to_i
   @skis = select_all("skis")
   slim(:"skis/index")
 end
 
-#     SKIS  POST NEW
+#     SKIS GET NEW
 get('/skis/new') do
   slim(:"skis/new")
 end
@@ -35,7 +35,7 @@ post('/skis/new') do
   tailwidth = params[:tailwidth]
   skitype = params[:skitype]
 
-  insert_skis(brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
+  insert_skis(brand,modelname,skitype,length,frontwidth,waistwidth,tailwidth)
   redirect('/skis')
   
   # user_id = session[:id].to_i
@@ -46,14 +46,12 @@ post('/skis/new') do
   # end
 end
 
-#     SKIS  DELETE
+#     SKIS DELETE
 post('/skis/:id/delete') do
   id = params[:id].to_i
-  db = SQLite3::Database.new("db/slpws23.db")
-  db.execute("DELETE FROM skis WHERE id = ?",id)
+  delete_all_id("skis",id)
   redirect('/skis')
 end
-
 
 #     SKIS UPDATE
 post('/skis/:id/update') do
@@ -96,7 +94,7 @@ get('/helmets') do
   slim(:"helmets/index")
 end
 
-#     HELMETS  POST NEW
+#     HELMETS GET NEW
 get('/helmets/new') do
   slim(:"helmets/new")
 end
@@ -112,11 +110,10 @@ post('/helmets/new') do
   redirect('/helmets')
 end
 
-#     HELMETS  DELETE
+#     HELMETS DELETE
 post('/helmets/:id/delete') do
   id = params[:id].to_i
-  db = SQLite3::Database.new("db/slpws23.db")
-  db.execute("DELETE FROM helmets WHERE id = ?",id)
+  delete_all_id("helmets",id)
   redirect('/helmets')
 end
 
@@ -138,4 +135,56 @@ get('/helmets/:id/edit') do
   # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
   @helmet = select_all_id("helmets",@id)[0]
   slim(:"helmets/edit")
+end
+
+#     CRUD bindings
+
+#     BINDINGS  VIEW
+get('/bindings') do
+  id = session[:id].to_i
+  @bindings = select_all("bindings")
+  slim(:"bindings/index")
+end
+
+#     BINDINGS  POST NEW
+get('/bindings/new') do
+  slim(:"bindings/new")
+end
+
+#     POST NEW
+post('/bindings/new') do
+  modelname = params[:modelname]
+  brand = params[:brand]
+  type = params[:type]
+  weight = params[:weight]
+
+  insert_bindings(brand,modelname,type,weight)
+  redirect('/bindings')
+end
+
+#     BINDINGS  DELETE
+post('/bindings/:id/delete') do
+  id = params[:id].to_i
+  delete_all_id("bindings",id)
+  redirect('/bindings')
+end
+
+#     BINDINGS UPDATE
+post('/bindings/:id/update') do
+  id = params[:id].to_i  
+  modelname = params[:modelname]
+  brand = params[:brand]
+  type = params[:type]
+  weight = params[:weight]
+  
+  update_bindings(id,brand,modelname,type,weight)
+  redirect('/bindings')
+end
+
+#     BINDINGS EDIT
+get('/bindings/:id/edit') do
+  @id = params[:id].to_i
+  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
+  @binding = select_all_id("bindings",@id)[0]
+  slim(:"bindings/edit")
 end

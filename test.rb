@@ -1,52 +1,42 @@
-#     CRUD HELMETS
-
-#     HELMETS  VIEW
-get('/helmets') do
-  id = session[:id].to_i
-  @helmets = select_all("helmets")
-  slim(:"helmets/index")
-end
-
-#     HELMETS  POST NEW
-get('/helmets/new') do
-  slim(:"helmets/new")
+#     BINDINGS  POST NEW
+get('/bindings/new') do
+  slim(:"bindings/new")
 end
 
 #     POST NEW
-post('/helmets/new') do
+post('/bindings/new') do
   modelname = params[:modelname]
   brand = params[:brand]
-  mips = params[:mips]
-  color = params[:color]
+  type = params[:type]
+  weight = params[:weight]
 
-  insert_helmets(brand,modelname,mips,color)
-  redirect('/helmets')
+  insert_bindings(brand,modelname,type,weight)
+  redirect('/bindings')
 end
 
-#     HELMETS  DELETE
-post('/helmets/:id/delete') do
+#     BINDINGS  DELETE
+post('/bindings/:id/delete') do
   id = params[:id].to_i
-  db = SQLite3::Database.new("db/slpws23.db")
-  db.execute("DELETE FROM helmets WHERE id = ?",id)
-  redirect('/helmets')
+  delete_all_id("bindings",id)
+  redirect('/bindings')
 end
 
-#     HELMETS UPDATE
-post('/helmets/:id/update') do
-  id = params[:id].to_i
+#     BINDINGS UPDATE
+post('/bindings/:id/update') do
+  id = params[:id].to_i  
   modelname = params[:modelname]
   brand = params[:brand]
-  mips = params[:mips]
-  color = params[:color]
+  type = params[:type]
+  weight = params[:weight]
   
-  update_helmets(id,brand,modelname,mips,color)
-  redirect('/helmets')
+  update_bindings(id,brand,modelname,type,weight)
+  redirect('/bindings')
 end
 
-#     HELMETS EDIT
-get('/helmets/:id/edit') do
+#     BINDINGS EDIT
+get('/bindings/:id/edit') do
   @id = params[:id].to_i
   # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
-  @helmet = select_all_id("helmets",@id)[0]
-  slim(:"helmets/edit")
+  @ski = select_all_id("bindings",@id)[0]
+  slim(:"bindings/edit")
 end
