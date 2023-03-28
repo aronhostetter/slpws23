@@ -1,0 +1,22 @@
+h2 Lägg till bindningar
+ul
+    li
+        form.product action="/bindings/new" method="post"
+            <input type="text" name="brand" placeholder="Märke" required>
+            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            
+            .addimage
+                <input type="file" name="image">
+            
+            .numbers
+                <label for="type" required>Vilken skidtyp?</label>
+                <select name="type" id="type">
+                <option value="alpine">Alpine</option>
+                <option value="hybrid">Hybrid</option>
+                <option value="touring">Touring</option>
+
+            .numbers
+                <input type="number" name="weight" placeholder="Vikt (gram)" min="50" max="3000" required>
+
+            / input.submit type="submit" value="Lägg till"
+            input.submit type="image" src="/img/addsymbol.png" alt="Submit" width="30" height="30"

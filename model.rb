@@ -55,11 +55,11 @@ end
 def insert_bindings(brand,modelname,type,weight)
     # p brand,modelname,type,weight
     db = SQLite3::Database.new("db/slpws23.db")
-    db.execute("INSERT INTO bindings (modelname,brand,type,weight) VALUES (?,?,?,?)",modelname,brand,mips,color)
+    db.execute("INSERT INTO bindings (modelname,brand,type,weight) VALUES (?,?,?,?)",modelname,brand,type,weight)
 end
 
 def update_bindings(id,brand,modelname,type,weight)
-    # p id,brand,modelname,type,weight
+    p id,brand,modelname,type,weight
     db = SQLite3::Database.new("db/slpws23.db")
     db.execute("UPDATE bindings SET modelname = ?,brand = ?,type = ?,weight = ? WHERE id = ?",modelname,brand,type,weight,id)
 end
