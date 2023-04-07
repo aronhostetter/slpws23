@@ -1,0 +1,70 @@
+
+h2 Kolla in #{@user[0]["username"]}s utrustning:
+
+h3 Skidor: 
+
+- if @skis != []
+    ul
+        - @skis.each do |ski|
+            li.product
+                - if ski["img_source"] == nil 
+                    - ski["img_source"] = "/img/notfound.jpg"
+                - elsif ski["skitype"] == nil
+                    - ski["skitype"] = "Not found"
+
+                h3 = ski["brand"] + " " + ski["modelname"]
+                img.product src="#{ski["img_source"]}" alt="#{ski["modelname"]}"/
+                p = "Skidtyp: " + ski["skitype"]
+                p Längd: #{ski["length"]} cm
+                p Bredd: #{ski["frontwidth"]}/#{ski["waistwidth"]}/#{ski["tailwidth"]} mm
+
+                form action="/skis/#{ski['id']}/edit" method="get"
+                    input type="submit" value="uppdatera"
+                form action="/skis/#{ski['id']}/delete" method="post"
+                    input type="submit" value="ta bort"
+- else
+    h3 #{@user[0]["username"]} har inga skidor!
+
+h3 Bindingar: 
+
+- if @bindings != []
+    ul
+        - @bindings.each do |binding|
+            li.product
+                - if binding["img_source"] == nil 
+                    - binding["img_source"] = "/img/notfound.jpg"
+                - elsif binding["type"] == nil
+                    - binding["type"] = "Not found"
+
+                h3 = binding["brand"] + " " + binding["modelname"]
+                img.product src="#{binding["img_source"]}" alt="#{binding["modelname"]}"/
+                p = "Bindningstyp: " + binding["type"]
+                p Vikt: #{binding["weight"]} g
+- else
+    h3  #{@user[0]["username"]} har inga bindningar!
+
+
+h3 Hjälmar:
+
+- if @helmets != []
+    ul
+        - @helmets.each do |helmet|
+            li.product
+                - if helmet["img_source"] == nil 
+                    - helmet["img_source"] = "/img/notfound.jpg"
+
+                h3 = helmet["brand"] + " " + helmet["modelname"]
+                img.product src="#{helmet["img_source"]}" alt="#{helmet["modelname"]}"/
+                - if helmet["mips"] == 1
+                    p = "MIPS: " + "Ja"
+                - elsif  helmet["mips"] == 0
+                    p = "MIPS: " + "Nej"
+                / - else error
+                p Färg: #{helmet["color"]}
+
+                form action="/helmets/#{helmet['id']}/edit" method="get"
+                    input type="submit" value="uppdatera"
+                form action="/helmets/#{helmet['id']}/delete" method="post"
+                    input type="submit" value="ta bort"
+- else
+    h3  #{@user[0]["username"]} har inga hjälmar!

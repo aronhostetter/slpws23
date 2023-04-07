@@ -7,12 +7,15 @@ html lang="en"
     title Document
   body
     nav
+      a href="/" Hem
+      -if session[:id] == nil
+        a href="/register" Registrera dig
+      -else
+        a href="/showlogin" Logga ut
       a href="/skis" Skidor
       a href="/bindings" Bindningar
-      a href="/poles" Stavar
       a href="/helmets" Hjälmar
-      a href="/register" Register
-      a href="/showlogin" Login
+      a href="/users" Användare
     h1 Välkommen till skidutrustningens hemsida!
 
     == yield

@@ -1,0 +1,9 @@
+h2 Alla användare!
+
+- if @users != []
+    ul
+        - @users.each do |user|
+            a href="/users/#{user["id"]}"
+                li.user
+                    h3 Användarnamn:
+                    p = user["username"]

@@ -33,7 +33,8 @@ ul {
 }
 
 li,
-form.product {
+form.product,
+.user {
     padding: 15px;
     background-color: wheat;
     width: 350px;
@@ -41,6 +42,15 @@ form.product {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.user {
+    width: auto;
 }
 
 form.product {
@@ -80,3 +90,8 @@ img.product {
 .submit {
     margin: 5px;
 }
+
+
+/* button:hover {
+    opacity: 50%;
+} */

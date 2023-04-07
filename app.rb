@@ -24,19 +24,42 @@ end
 post('/login') do
   username = params[:username]
   password = params[:password]
-  db = SQLite3::Database.new("db/slpws23.db")
-  db.results_as_hash = true
-  result = db.execute("SELECT * FROM users WHERE username = ?",username).first
+
+  result = select_password(username)
   pwdigest = result["pwdigest"]
   id = result["id"]
+
+  # p BCrypt::Password.new(password)
+  p pwdigest
+
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
     session[:username] = username
-    redirect('/todos')
+    redirect('/')
   # else
     # session[:fault] = "login"
     # redirect('fault')
   end
+end
+
+post('/logout') do
+  session[:id] = nil
+  session[:username] = nil
+  redirect('/')
+end
+
+get('/users') do
+  @users = select_all("users")
+  slim(:"users/index")
+end
+
+get('/users/:id') do
+  id = params[:id].to_i
+  @user = select_all_id("users",id)
+  @bindings = select_owned_bindings(id)
+  @skis = select_owned_skis(id)
+  @helmets = select_owned_helmets(id)
+  slim(:"users/show")
 end
 
 post('/users/new') do
@@ -46,10 +69,8 @@ post('/users/new') do
 
   if (password == password_confirm)
     #lägg till ny användare
-    password_digest = BCrypt::Password.create(password)
-    create_user(password_digest)
-    db = SQLite3::Database.new("db/slpws23.db")
-    db.execute("INSERT INTO users (username,pwdigest) VALUES (?,?)",username,password_digest)
+    pwdigest = BCrypt::Password.create(password)
+    create_user(username,pwdigest)
     redirect('/showlogin')
   # else
   #   session[:fault] = "register user"
@@ -57,11 +78,18 @@ post('/users/new') do
   end
 end
 
+#     USERS EDIT
+get('/users/:id/edit') do
+  @id = params[:id].to_i
+  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
+  @ski = select_all_id("skis",@id)[0]
+  slim(:"skis/edit")
+end
+
 #     CRUD SKIS
 
 #     SKIS VIEW
 get('/skis') do
-  id = session[:id].to_i
   @skis = select_all("skis")
   slim(:"skis/index")
 end
@@ -135,7 +163,6 @@ end
 #
 #     HELMETS  VIEW
 get('/helmets') do
-  id = session[:id].to_i
   @helmets = select_all("helmets")
   slim(:"helmets/index")
 end
@@ -187,7 +214,6 @@ end
 #
 #     BINDINGS  VIEW
 get('/bindings') do
-  id = session[:id].to_i
   @bindings = select_all("bindings")
   slim(:"bindings/index")
 end
