@@ -1,9 +1,8 @@
 
-h2 Kolla in #{@user[0]["username"]}s utrustning:
-
-h3 Skidor: 
+h2 Kolla in #{@user[0]["username"]}'s utrustning!
 
 - if @skis != []
+    h3 Skidor: 
     ul
         - @skis.each do |ski|
             li.product
@@ -25,9 +24,9 @@ h3 Skidor:
 - else
     h3 #{@user[0]["username"]} har inga skidor!
 
-h3 Bindingar: 
 
 - if @bindings != []
+    h3 Bindingar: 
     ul
         - @bindings.each do |binding|
             li.product
@@ -44,9 +43,9 @@ h3 Bindingar:
     h3  #{@user[0]["username"]} har inga bindningar!
 
 
-h3 Hjälmar:
 
 - if @helmets != []
+    h3 Hjälmar:
     ul
         - @helmets.each do |helmet|
             li.product

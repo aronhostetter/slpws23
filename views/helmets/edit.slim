@@ -16,8 +16,10 @@ ul
     li
         h2 Hur vill du att den ska se ut?
         form.product action="/helmets/#{@id}/update" method="post"
-            <input type="text" name="brand" placeholder="Märke" required>
-            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            <label for="brand" required>Vilket fabrikat?</label>
+            <input type="text" name="brand" placeholder="Märke" required value="#{@helmet['brand']}">
+            <label for="modelname" required>Vilken modell?</label>
+            <input type="text" name="modelname" placeholder="Modellnamn" required value="#{@helmet['modelname']}">
             
             .addimage
                 <input type="file" name="image">
@@ -29,6 +31,7 @@ ul
                 <option value="0">Nej</option>
 
             .numbers
-                <input type="text" name="color" placeholder="Färg" required>
+                <label for="color" required>Vilken färg?</label>
+                <input type="text" name="color" placeholder="Färg" required value="#{@helmet['color']}">
 
             input type="submit" value="ändra"

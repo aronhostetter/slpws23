@@ -17,8 +17,10 @@ ul
     li
         h2 Hur vill du att den ska se ut?
         form.product action="/skis/#{@id}/update" method="post"
-            <input type="text" name="brand" placeholder="Märke" required>
-            <input type="text" name="modelname" placeholder="Modellnamn" required>
+            <label for="brand" required>Vilket fabrikat?</label>
+            <input type="text" name="brand" placeholder="Märke" required value="#{@ski['brand']}">
+            <label for="modelname" required>Vilken modell?</label>
+            <input type="text" name="modelname" placeholder="Modellnamn" required value="#{@ski['modelname']}">
             
             .addimage
                 <input type="file" name="image">
@@ -31,9 +33,13 @@ ul
                 <option value="touring">Touring</option>
 
             .numbers
-                <input type="number" name="length" placeholder="Längd (cm)" min="150" max="200" required>
-                <input type="number" name="frontwidth" placeholder="Främre bredd (mm)" min="80" max="220" required>
-                <input type="number" name="waistwidth" placeholder="Midjebredd (mm)" min="60" max="150" required>
-                <input type="number" name="tailwidth" placeholder="Bakre bredd (mm)" min="70" max="200" required>
+                <label for="length" required>Vilken längd?</label>
+                <input type="number" name="length" placeholder="Längd (cm)" min="150" max="200" value="#{@ski['length']}" required>
+                <label for="frontwidth" required>Vilken frambredd?</label>
+                <input type="number" name="frontwidth" placeholder="Främre bredd (mm)" min="80" max="220" required value="#{@ski['frontwidth']}" >
+                <label for="waistwidth" required>Vilken midjebredd?</label>
+                <input type="number" name="waistwidth" placeholder="Midjebredd (mm)" min="60" max="150" required value="#{@ski['waistwidth']}">
+                <label for="tailwidth" required>Vilken bakbredd?</label>
+                <input type="number" name="tailwidth" placeholder="Bakre bredd (mm)" min="70" max="200" required value="#{@ski['tailwidth']}">
 
             input type="submit" value="ändra"

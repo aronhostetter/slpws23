@@ -6,6 +6,12 @@ p {
     margin: 7px;
 }
 
+h2.name {
+    background-color: black;
+    color: white;
+    width: min-content;
+}
+
 nav {
     font-family: Arial, Helvetica, sans-serif;
     text-transform: uppercase;
@@ -28,16 +34,21 @@ ul {
     display: flex;
     justify-content: left;
     align-items: center;
-    gap: 100px;
+    gap: 20px;
     flex-wrap: wrap;
 }
+
+
+/* ul.smallgap {
+    gap: 20px;
+} */
 
 li,
 form.product,
 .user {
     padding: 15px;
     background-color: wheat;
-    width: 350px;
+    width: 320px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -58,7 +69,7 @@ form.product {
 }
 
 img.product {
-    height: 300px;
+    height: 270px;
     padding: 10px;
     background-color: white;
 }

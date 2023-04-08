@@ -42,6 +42,18 @@ def select_password(username)
     return result
 end
 
+def remove_equipment(category,user_id,eq_id)
+    db = connect_db()
+    db.execute("DELETE FROM relations_user_#{category} WHERE user_id = ? AND ski_id = ?",user_id,eq_id)
+
+end
+
+def add_equipment(category,user_id,eq_id)
+    db = connect_db()
+    db.execute("INSERT INTO relations_user_#{category} (user_id,eq_id) VALUES (?,?)",user_id,eq_id)
+
+end
+
 ###     SKIS
 
 def insert_skis(brand,modelname,skitype,length,frontwidth,waistwidth,tailwidth)
@@ -65,6 +77,18 @@ def select_owned_skis(id)
         INNER JOIN users ON relations_user_ski.user_id = users.id)
         INNER JOIN skis ON relations_user_ski.ski_id = skis.id)
     WHERE user_id = ?",id)
+    return result
+end
+
+def select_available_skis(id)
+    db = connect_db()
+    db.results_as_hash = true
+    result = db.execute("
+    SELECT skis.modelname,skis.brand,skis.length,skis.frontwidth,skis.waistwidth,skis.tailwidth,skis.skitype,skis.img_source
+    FROM ((relations_user_ski
+        INNER JOIN users ON relations_user_ski.user_id = users.id)
+        INNER JOIN skis ON relations_user_ski.ski_id = skis.id)
+    WHERE user_id != ?",id)
     return result
 end
 
@@ -94,6 +118,18 @@ def select_owned_helmets(id)
     return result
 end
 
+def select_available_helmets(id)
+    db = connect_db()
+    db.results_as_hash = true
+    result = db.execute("
+    SELECT helmets.modelname,helmets.brand,helmets.mips,helmets.color,helmets.img_source
+    FROM ((relations_user_helmet
+        INNER JOIN users ON relations_user_helmet.user_id = users.id)
+        INNER JOIN helmets ON relations_user_helmet.helmet_id = helmets.id)
+    WHERE user_id != ?",id)
+    return result
+end
+
 ###     BINDINGS
 
 def insert_bindings(brand,modelname,type,weight)
@@ -117,5 +153,17 @@ def select_owned_bindings(id)
             INNER JOIN users ON relations_user_binding.user_id = users.id)
             INNER JOIN bindings ON relations_user_binding.binding_id = bindings.id)
         WHERE user_id = ?",id)
+        return result
+end
+
+def select_available_bindings(id)
+        db = connect_db()
+        db.results_as_hash = true
+        result = db.execute("
+        SELECT bindings.modelname,bindings.brand,bindings.type,bindings.weight,bindings.img_source
+        FROM ((relations_user_binding
+            INNER JOIN users ON relations_user_binding.user_id = users.id)
+            INNER JOIN bindings ON relations_user_binding.binding_id = bindings.id)
+        WHERE user_id != ?",id)
         return result
 end

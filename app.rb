@@ -80,10 +80,48 @@ end
 
 #     USERS EDIT
 get('/users/:id/edit') do
-  @id = params[:id].to_i
-  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
-  @ski = select_all_id("skis",@id)[0]
-  slim(:"skis/edit")
+  # @id = params[:id].to_i
+  ### KOLLA SÅ ATT IDn STÄMMER INNAN ÄNDRING
+  @ownedskis = select_owned_skis(session[:id])
+  @ownedbindings = select_owned_bindings(session[:id])
+  @ownedhelmets = select_owned_helmets(session[:id])
+
+  @allskis = select_all("skis")
+  @allbindings = select_all("bindings")
+  @allhelmets = select_all("helmets")
+
+  @avlb_skis = @allskis-@ownedskis
+  @avlb_bindings = @allbindings-@ownedbindings
+  @avlb_helmets = @allhelmets-@ownedhelmets
+
+  slim(:"users/edit")
+end
+
+#     USER UPDATE
+post('/user/:id/update') do
+  # id = params[:id].to_i
+  # modelname = params[:modelname]
+  # brand = params[:brand]
+  # length = params[:length]
+  # frontwidth = params[:frontwidth]
+  # waistwidth = params[:waistwidth]
+  # tailwidth = params[:tailwidth]
+  # skitype = params[:skitype]
+  
+  # update_skis(id,brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
+  # redirect('/skis')
+
+  if åtgärd == ta bort
+    remove_equipment("ski",user_id,eq_id)
+  elsif årgärd == lägg till
+    add_equipment("ski",user_id,_eq_id)
+
+end
+
+#     HUR SKA JAG GÖRA HÄR EMIL? JAG KAN JU KNAPPAST HA EN SÅHÄR LÅNG ROUTE ELLER???
+#     EQUIPMENT ADD
+post('users/:id/add/:category/:modelname') do
+  # HÄR TÄNKER JAG ATT EN INLOGGAD ANVÄNDARE SKA KUNNA LÄGGA TILL PRODUKTERNA I DERAS EGNA INNEHAV TROTS ATT DET BARA ÄR ADMIN SOM KAN LÄGGA TILL EN PRODUKT I DATABASEN. JAG VET INTE RIKTIGT HUR JAG SKA GÖRA DET...
 end
 
 #     CRUD SKIS
@@ -155,6 +193,7 @@ end
 get('/skis/:id/edit') do
   @id = params[:id].to_i
   # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
+  p @ski
   @ski = select_all_id("skis",@id)[0]
   slim(:"skis/edit")
 end

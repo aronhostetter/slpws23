@@ -14,12 +14,14 @@ h2 Alla bindningar!
                 p = "Bindningstyp: " + binding["type"]
                 p Vikt: #{binding["weight"]} g
 
-                form action="/bindings/#{binding['id']}/edit" method="get"
-                    input type="submit" value="uppdatera"
-                form action="/bindings/#{binding['id']}/delete" method="post"
-                    input type="submit" value="ta bort"
+                -if session[:id] == 3 && session[:username] == "admin"
+                    form action="/bindings/#{binding['id']}/edit" method="get"
+                        input type="submit" value="uppdatera"
+                    form action="/bindings/#{binding['id']}/delete" method="post"
+                        input type="submit" value="ta bort"
 - else
     h3 Tryck på knappen nedan för att lägga till hemsidans första bindingda!
 
-form action="/bindings/new" method="get"
-    input type="submit" value="ADD NEW"
+-if session[:id] == 3 && session[:username] == "admin"
+    form action="/bindings/new" method="get"
+        input type="submit" value="ADD NEW"
