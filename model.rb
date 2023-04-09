@@ -42,16 +42,16 @@ def select_password(username)
     return result
 end
 
-def remove_equipment(category,user_id,eq_id)
+def remove_from_equipment(category,user_id,eq_id)
     db = connect_db()
     db.execute("DELETE FROM relations_user_#{category} WHERE user_id = ? AND ski_id = ?",user_id,eq_id)
-
+    p "ta bort"
 end
 
-def add_equipment(category,user_id,eq_id)
+def add_to_equipment(category,user_id,eq_id)
     db = connect_db()
-    db.execute("INSERT INTO relations_user_#{category} (user_id,eq_id) VALUES (?,?)",user_id,eq_id)
-
+    db.execute("INSERT INTO relations_user_#{category} (user_id,#{category}_id) VALUES (?,?)",user_id,eq_id)
+    p "lägg till"
 end
 
 ###     SKIS
@@ -72,7 +72,7 @@ def select_owned_skis(id)
     db = connect_db()
     db.results_as_hash = true
     result = db.execute("
-    SELECT skis.modelname,skis.brand,skis.length,skis.frontwidth,skis.waistwidth,skis.tailwidth,skis.skitype,skis.img_source
+    SELECT skis.id,skis.modelname,skis.brand,skis.length,skis.frontwidth,skis.waistwidth,skis.tailwidth,skis.skitype,skis.img_source
     FROM ((relations_user_ski
         INNER JOIN users ON relations_user_ski.user_id = users.id)
         INNER JOIN skis ON relations_user_ski.ski_id = skis.id)
@@ -84,7 +84,7 @@ def select_available_skis(id)
     db = connect_db()
     db.results_as_hash = true
     result = db.execute("
-    SELECT skis.modelname,skis.brand,skis.length,skis.frontwidth,skis.waistwidth,skis.tailwidth,skis.skitype,skis.img_source
+    SELECT skis.id,skis.modelname,skis.brand,skis.length,skis.frontwidth,skis.waistwidth,skis.tailwidth,skis.skitype,skis.img_source
     FROM ((relations_user_ski
         INNER JOIN users ON relations_user_ski.user_id = users.id)
         INNER JOIN skis ON relations_user_ski.ski_id = skis.id)

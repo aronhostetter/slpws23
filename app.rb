@@ -98,8 +98,18 @@ get('/users/:id/edit') do
 end
 
 #     USER UPDATE
-post('/user/:id/update') do
-  # id = params[:id].to_i
+post('/users/:id/update') do
+  id = params[:id].to_i
+  eq_id = params[:eq_id].to_i
+
+  p "hejsan"
+  p eq_id
+  action = params[:action]
+  p action
+  category = params[:category]
+  p category
+  
+  user_id = session[:id]
   # modelname = params[:modelname]
   # brand = params[:brand]
   # length = params[:length]
@@ -109,13 +119,17 @@ post('/user/:id/update') do
   # skitype = params[:skitype]
   
   # update_skis(id,brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
-  # redirect('/skis')
 
-  if åtgärd == ta bort
-    remove_equipment("ski",user_id,eq_id)
-  elsif årgärd == lägg till
-    add_equipment("ski",user_id,_eq_id)
+  if action == "remove"
+    remove_from_equipment(category,user_id,eq_id)
+    p "borttagen"
+  elsif action == "add"
+    add_to_equipment(category,user_id,eq_id)
+    p "lagd till"
+  end
 
+  p "redirect"
+  redirect('/users/#{user_id}')
 end
 
 #     HUR SKA JAG GÖRA HÄR EMIL? JAG KAN JU KNAPPAST HA EN SÅHÄR LÅNG ROUTE ELLER???

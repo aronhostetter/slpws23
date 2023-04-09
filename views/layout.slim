@@ -8,14 +8,14 @@ html lang="en"
   body
     nav
       a href="/" Hem
-      -if session[:id] == nil
-        a href="/register" Registrera dig
-      -else
-        a href="/showlogin" Logga ut
       a href="/skis" Skidor
       a href="/bindings" Bindningar
       a href="/helmets" Hjälmar
       a href="/users" Användare
+      -if session[:id] == nil
+        a href="/register" Registrera dig
+      -else
+        a href="/showlogin" Logga ut
     h1 Välkommen till skidutrustningens hemsida!
 
     == yield
