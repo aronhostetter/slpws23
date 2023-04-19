@@ -16,11 +16,6 @@ h2 Kolla in #{@user[0]["username"]}'s utrustning!
                 p = "Skidtyp: " + ski["skitype"]
                 p Längd: #{ski["length"]} cm
                 p Bredd: #{ski["frontwidth"]}/#{ski["waistwidth"]}/#{ski["tailwidth"]} mm
-
-                form action="/skis/#{ski['id']}/edit" method="get"
-                    input type="submit" value="uppdatera"
-                form action="/skis/#{ski['id']}/delete" method="post"
-                    input type="submit" value="ta bort"
 - else
     h3 #{@user[0]["username"]} har inga skidor!
 
@@ -60,10 +55,5 @@ h2 Kolla in #{@user[0]["username"]}'s utrustning!
                     p = "MIPS: " + "Nej"
                 / - else error
                 p Färg: #{helmet["color"]}
-
-                form action="/helmets/#{helmet['id']}/edit" method="get"
-                    input type="submit" value="uppdatera"
-                form action="/helmets/#{helmet['id']}/delete" method="post"
-                    input type="submit" value="ta bort"
 - else
     h3  #{@user[0]["username"]} har inga hjälmar!

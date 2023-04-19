@@ -6,6 +6,31 @@ require 'sinatra/reloader'
 require_relative './model.rb'
 enable :sessions
 
+include Model
+
+# before do
+#   if session[:id] == nil && (request.path_info)
+#   end
+# end
+
+# before do
+#   # Lista alla begränsade routes
+#   restricted_paths = ['/users/new', '/admin/*', '/settings']
+ 
+#   # Om användaren inte är inloggad och försöker komma åt en begränsad sökväg,
+#   # omdirigera dem till inloggningssidan.	Här har session[:logged_in satts till “true” vid inloggning. 
+#   if session[:id] != nil && restricted_paths.include?(request.path_info)
+#     redirect '/login'
+#   end
+ 
+#   # Om användaren är inloggad men inte är en administratör och försöker komma åt en administratörssökväg,
+#   # omdirigera dem till startsidan. Här har session[:admin] satts till “true” vid inloggningen.
+#   if session[:logged_in] && !session[:admin] && request.path_info == '/admin'
+#     redirect '/'
+#   end
+#  end
+ 
+
 #     HOME  ALL
 get('/') do
   slim(:index)
@@ -24,13 +49,13 @@ end
 post('/login') do
   username = params[:username]
   password = params[:password]
+  p "hej"
+  p username
+  p password
 
   result = select_password(username)
   pwdigest = result["pwdigest"]
   id = result["id"]
-
-  # p BCrypt::Password.new(password)
-  p pwdigest
 
   if BCrypt::Password.new(pwdigest) == password
     session[:id] = id
@@ -54,6 +79,7 @@ get('/users') do
 end
 
 get('/users/:id') do
+  p "hoppar hit"
   id = params[:id].to_i
   @user = select_all_id("users",id)
   @bindings = select_owned_bindings(id)
@@ -101,41 +127,27 @@ end
 post('/users/:id/update') do
   id = params[:id].to_i
   eq_id = params[:eq_id].to_i
-
-  p "hejsan"
-  p eq_id
   action = params[:action]
-  p action
   category = params[:category]
-  p category
   
   user_id = session[:id]
-  # modelname = params[:modelname]
-  # brand = params[:brand]
-  # length = params[:length]
-  # frontwidth = params[:frontwidth]
-  # waistwidth = params[:waistwidth]
-  # tailwidth = params[:tailwidth]
-  # skitype = params[:skitype]
-  
-  # update_skis(id,brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
 
   if action == "remove"
     remove_from_equipment(category,user_id,eq_id)
-    p "borttagen"
   elsif action == "add"
     add_to_equipment(category,user_id,eq_id)
-    p "lagd till"
   end
 
-  p "redirect"
-  redirect('/users/#{user_id}')
+  redirect("/users/#{user_id}/edit")
 end
 
-#     HUR SKA JAG GÖRA HÄR EMIL? JAG KAN JU KNAPPAST HA EN SÅHÄR LÅNG ROUTE ELLER???
-#     EQUIPMENT ADD
-post('users/:id/add/:category/:modelname') do
-  # HÄR TÄNKER JAG ATT EN INLOGGAD ANVÄNDARE SKA KUNNA LÄGGA TILL PRODUKTERNA I DERAS EGNA INNEHAV TROTS ATT DET BARA ÄR ADMIN SOM KAN LÄGGA TILL EN PRODUKT I DATABASEN. JAG VET INTE RIKTIGT HUR JAG SKA GÖRA DET...
+#     SKIS DELETE
+post('/users/:id/delete') do
+  id = params[:id].to_i
+  p "ta bort"
+  p id
+  delete_all_id("user",id)
+  redirect('/users')
 end
 
 #     CRUD SKIS
@@ -175,7 +187,7 @@ end
 #     SKIS DELETE
 post('/skis/:id/delete') do
   id = params[:id].to_i
-  delete_all_id("skis",id)
+  delete_all_id("ski",id)
   redirect('/skis')
 end
 
@@ -239,7 +251,7 @@ end
 #     HELMETS DELETE
 post('/helmets/:id/delete') do
   id = params[:id].to_i
-  delete_all_id("helmets",id)
+  delete_all_id("helmet",id)
   redirect('/helmets')
 end
 
@@ -290,7 +302,7 @@ end
 #     BINDINGS  DELETE
 post('/bindings/:id/delete') do
   id = params[:id].to_i
-  delete_all_id("bindings",id)
+  delete_all_id("binding",id)
   redirect('/bindings')
 end
 

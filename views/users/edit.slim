@@ -2,7 +2,7 @@ h2.name #{session[:username]}
 h2 Ändra din utrustning
 
 h3 Dina skidor:
-ul.smallgap
+ul.smallgap.remove
     - @ownedskis.each do |ski|
         li.product
             h3 = ski["brand"] + " " + ski["modelname"]
@@ -14,7 +14,7 @@ ul.smallgap
 / skicka informationen genom gömda fält till posten som ändrar i SQL
 
 h3 Lägg till skidor i din utrustning:
-ul.smallgap
+ul.smallgap.add
     - @avlb_skis.each do |ski|
         li.product
             h3 = ski["brand"] + " " + ski["modelname"]
@@ -24,34 +24,46 @@ ul.smallgap
                 <input type="hidden" name="category" value="ski">
                 input type="submit" value="lägg till i dina skidor"
 
-/ h3 Dina bindningar:
-/ ul.smallgap
-/     - @ownedbindings.each do |binding|
-/         li.product
-/             h3 = binding["brand"] + " " + binding["modelname"]
-/             form action="/bindings/#{binding['id']}" method="post"
-/                 input type="submit" value="ta bort från dina bindningar"
+h3 Dina bindningar:
+ul.smallgap.remove
+    - @ownedbindings.each do |binding|
+        li.product
+            h3 = binding["brand"] + " " + binding["modelname"]
+            form action="/users/#{session[:id]}/update" method="post"
+                <input type="hidden" name="eq_id" value="#{binding['id']}">
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="category" value="binding">
+                input type="submit" value="ta bort från dina bindningar"
 
-/ h3 Lägg till bindningar i din utrustning:
-/ ul.smallgap
-/     - @avlb_bindings.each do |binding|
-/         li.product
-/             h3 = binding["brand"] + " " + binding["modelname"]
-/             form action="/bindings/#{binding['id']}" method="post"
-/                 input type="submit" value="lägg till i dina bindningar"
+h3 Lägg till bindningar i din utrustning:
+ul.smallgap.add
+    - @avlb_bindings.each do |binding|
+        li.product
+            h3 = binding["brand"] + " " + binding["modelname"]
+            form action="/users/#{session[:id]}/update" method="post"
+                <input type="hidden" name="eq_id" value="#{binding['id']}">
+                <input type="hidden" name="action" value="add">
+                <input type="hidden" name="category" value="binding">
+                input type="submit" value="lägg till i dina bindningar"
 
-/ h3 Dina hjälmar:
-/ ul.smallgap
-/     - @ownedhelmets.each do |helmet|
-/         li.product
-/             h3 = helmet["brand"] + " " + helmet["modelname"]
-/             form action="/helmets/#{helmet['id']}" method="post"
-/                 input type="submit" value="ta bort från dina hjälmar"
+h3 Dina hjälmar:
+ul.smallgap.remove
+    - @ownedhelmets.each do |helmet|
+        li.product
+            h3 = helmet["brand"] + " " + helmet["modelname"]
+            form action="/users/#{session[:id]}/update" method="post"
+                <input type="hidden" name="eq_id" value="#{helmet['id']}">
+                <input type="hidden" name="action" value="remove">
+                <input type="hidden" name="category" value="helmet">
+                input type="submit" value="ta bort från dina hjälmar"
 
-/ h3 Lägg till hjälmar i din utrustning:
-/ ul.smallgap
-/     - @avlb_helmets.each do |helmet|
-/         li.product
-/             h3 = helmet["brand"] + " " + helmet["modelname"]
-/             form action="/helmets/#{helmet['id']}" method="post"
-/                 input type="submit" value="lägg till i dina hjälmar"
+h3 Lägg till hjälmar i din utrustning:
+ul.smallgap.add
+    - @avlb_helmets.each do |helmet|
+        li.product
+            h3 = helmet["brand"] + " " + helmet["modelname"]
+            form action="/users/#{session[:id]}/update" method="post"
+                <input type="hidden" name="eq_id" value="#{helmet['id']}">
+                <input type="hidden" name="action" value="add">
+                <input type="hidden" name="category" value="helmet">
+                input type="submit" value="lägg till i dina hjälmar"
