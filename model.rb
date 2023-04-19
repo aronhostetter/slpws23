@@ -24,7 +24,10 @@ module Model
 
     def delete_all_id(category,id)
         db = connect_db()
-        return db.execute("DELETE FROM #{category} WHERE id = ?", id)
+        db.execute("DELETE FROM #{category}s WHERE id = ?", id)
+        db.execute("DELETE FROM relations_user_ski WHERE #{category}_id = ?", id)
+        db.execute("DELETE FROM relations_user_helmet WHERE #{category}_id = ?", id)
+        db.execute("DELETE FROM relations_user_binding WHERE #{category}_id = ?", id)
     end
 
     ###     USERS
