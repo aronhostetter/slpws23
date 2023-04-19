@@ -25,9 +25,17 @@ module Model
     def delete_all_id(category,id)
         db = connect_db()
         db.execute("DELETE FROM #{category}s WHERE id = ?", id)
-        db.execute("DELETE FROM relations_user_ski WHERE #{category}_id = ?", id)
-        db.execute("DELETE FROM relations_user_helmet WHERE #{category}_id = ?", id)
-        db.execute("DELETE FROM relations_user_binding WHERE #{category}_id = ?", id)
+        if category == "ski"
+            db.execute("DELETE FROM relations_user_ski WHERE #{category}_id = ?", id)
+        elsif category == "binding"
+            db.execute("DELETE FROM relations_user_binding WHERE #{category}_id = ?", id)
+        elsif category == "helmet"
+            db.execute("DELETE FROM relations_user_helmet WHERE #{category}_id = ?", id)
+        elsif category == "user"
+            db.execute("DELETE FROM relations_user_ski WHERE #{category}_id = ?", id)
+            db.execute("DELETE FROM relations_user_binding WHERE #{category}_id = ?", id)
+            db.execute("DELETE FROM relations_user_helmet WHERE #{category}_id = ?", id)
+        end
     end
 
     ###     USERS
@@ -111,7 +119,7 @@ module Model
     def select_owned_helmets(id)
         db = connect_db()
         db.results_as_hash = true
-        # result = db.execute("
+        result = db.execute("
         SELECT helmets.id,helmets.modelname,helmets.brand,helmets.mips,helmets.color,helmets.img_source
         FROM ((relations_user_helmet
             INNER JOIN users ON relations_user_helmet.user_id = users.id)

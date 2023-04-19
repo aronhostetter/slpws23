@@ -7,28 +7,48 @@ require_relative './model.rb'
 enable :sessions
 
 include Model
+###     KVAR ATT GÖRAS
+#       BEFORE-BLOCK OCH BEHÖRIGHETSSYSTEM
+#       YARDOC
+#       LOGGNING AV INLOGGNINGSFÖRSÖK
+#       COOLDOWN
 
-# before do
-#   if session[:id] == nil && (request.path_info)
-#   end
-# end
+before do
+  p "nu körs before blockets"
+  # Lista alla begränsade routes
+  # restricted_paths_guest = ['/users/1/edit', '/skis/:id/edit', '/bindings/:id/edit', '/helmets/:id/edit']
+  restricted_paths_guest = []
 
-# before do
-#   # Lista alla begränsade routes
-#   restricted_paths = ['/users/new', '/admin/*', '/settings']
- 
-#   # Om användaren inte är inloggad och försöker komma åt en begränsad sökväg,
-#   # omdirigera dem till inloggningssidan.	Här har session[:logged_in satts till “true” vid inloggning. 
-#   if session[:id] != nil && restricted_paths.include?(request.path_info)
-#     redirect '/login'
-#   end
- 
-#   # Om användaren är inloggad men inte är en administratör och försöker komma åt en administratörssökväg,
-#   # omdirigera dem till startsidan. Här har session[:admin] satts till “true” vid inloggningen.
-#   if session[:logged_in] && !session[:admin] && request.path_info == '/admin'
-#     redirect '/'
-#   end
-#  end
+  i = 1
+  while i < 10
+    restricted_paths_guest.append('users/')
+    restricted_paths_guest[i-1] += "#{i}"
+    restricted_paths_guest[i-1] += '/edit'
+    p "utfört"
+    # p restricted_paths_guest[i-1]
+    # p restricted_paths_guest
+    i += 1
+  end
+  p restricted_paths_guest
+
+  restricted_paths_user = ['skis/new','bindings/new','helmets/new']
+
+  # BEGRÄNSNINGAR FÖR GÄSTANVÄNDARE
+  # Om användaren inte är inloggad och försöker komma åt en begränsad sökväg, omdirigera dem till inloggningssidan.	Här har session[:logged_in satts till “true” vid inloggning. 
+
+  if session[:id] == nil && restricted_paths_guest.include?(request.path_info)
+    p "jag är gästanvändare"
+    redirect '/showlogin'
+  end
+
+  # BEGRÄNSNINGAR FÖR REGISTRERADE ANVÄNDARE
+  # Om användaren är inloggad men inte är en administratör och försöker komma åt en administratörssökväg,
+  # omdirigera dem till startsidan. Här har session[:admin] satts till “true” vid inloggningen.
+
+  if session[:id] != 3 && restricted_paths_user.include?(request.path_info)
+    redirect '/'
+  end
+ end
  
 
 #     HOME  ALL
@@ -49,9 +69,6 @@ end
 post('/login') do
   username = params[:username]
   password = params[:password]
-  p "hej"
-  p username
-  p password
 
   result = select_password(username)
   pwdigest = result["pwdigest"]
@@ -79,7 +96,6 @@ get('/users') do
 end
 
 get('/users/:id') do
-  p "hoppar hit"
   id = params[:id].to_i
   @user = select_all_id("users",id)
   @bindings = select_owned_bindings(id)
@@ -125,6 +141,8 @@ end
 
 #     USER UPDATE
 post('/users/:id/update') do
+  # KOLLA SÅ ATT SESSION[:ID] STÄMMER MED ROUTE-ID INNAN KÖRS
+
   id = params[:id].to_i
   eq_id = params[:eq_id].to_i
   action = params[:action]
@@ -143,9 +161,9 @@ end
 
 #     SKIS DELETE
 post('/users/:id/delete') do
+  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
+  #   KOLLA ÄVEN SÅ ATT USER INTE ÄR ADMIN
   id = params[:id].to_i
-  p "ta bort"
-  p id
   delete_all_id("user",id)
   redirect('/users')
 end
@@ -186,6 +204,7 @@ end
 
 #     SKIS DELETE
 post('/skis/:id/delete') do
+  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   id = params[:id].to_i
   delete_all_id("ski",id)
   redirect('/skis')
@@ -250,6 +269,7 @@ end
 
 #     HELMETS DELETE
 post('/helmets/:id/delete') do
+  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   id = params[:id].to_i
   delete_all_id("helmet",id)
   redirect('/helmets')
@@ -301,6 +321,7 @@ end
 
 #     BINDINGS  DELETE
 post('/bindings/:id/delete') do
+  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   id = params[:id].to_i
   delete_all_id("binding",id)
   redirect('/bindings')
