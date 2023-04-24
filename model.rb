@@ -1,4 +1,15 @@
 module Model
+    ###     VALIDATE INPUTS
+    def check_input(input)
+        return input == " "
+    end
+
+    def check_id(id)
+        if id != session[:id]
+            session[:fault] = "Du har inte behörighet att ändra denna resurs."
+            redirect('fault')
+        end
+    end
 
     ###     CONNECT TO DB
     def connect_db()
@@ -13,6 +24,11 @@ module Model
         db = connect_db()
         db.results_as_hash = true
         return db.execute("SELECT * FROM #{category}")
+    end
+
+    def select_column(category,column)
+        db = connect_db()
+        return db.execute("SELECT #{column} FROM #{category}")
     end
 
     def select_all_id(category,id)
@@ -73,7 +89,7 @@ module Model
     end
 
     def update_skis(id,brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
-        p modelname,brand,length,frontwidth,waistwidth,tailwidth,skitype,id
+        # p modelname,brand,length,frontwidth,waistwidth,tailwidth,skitype,id
         db = connect_db()
         db.execute("UPDATE skis SET modelname = ?,brand = ?,length = ?,frontwidth = ?,waistwidth = ?,tailwidth = ?,skitype = ? WHERE id = ?",modelname,brand,length,frontwidth,waistwidth,tailwidth,skitype,id)
     end
@@ -177,5 +193,4 @@ module Model
             WHERE user_id != ?",id)
             return result
     end
-
 end

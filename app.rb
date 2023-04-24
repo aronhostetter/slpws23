@@ -14,22 +14,26 @@ include Model
 #       COOLDOWN
 
 before do
-  p "nu körs before blockets"
+  p "nu körs before blocket"
   # Lista alla begränsade routes
-  # restricted_paths_guest = ['/users/1/edit', '/skis/:id/edit', '/bindings/:id/edit', '/helmets/:id/edit']
-  restricted_paths_guest = []
+  restricted_paths_guest = ['/users/1/edit', '/skis/:id/edit', '/bindings/:id/edit', '/helmets/:id/edit']
+  # restricted_paths_guest = []
 
-  i = 1
-  while i < 10
-    restricted_paths_guest.append('users/')
-    restricted_paths_guest[i-1] += "#{i}"
-    restricted_paths_guest[i-1] += '/edit'
-    p "utfört"
-    # p restricted_paths_guest[i-1]
-    # p restricted_paths_guest
-    i += 1
-  end
-  p restricted_paths_guest
+  ###   SKAPAS PROBLEM NÄR DEN INTE VILL ACCEPTERA DUBBELFNUTTAR, JAG MÅSTE ANVÄNDA DET FÖR ATT KUNNA KOLLA VILKA DYNAMISKA ROUTES SOM JAG MÅSTE BEGRÄNSA FÖR OINLOGGADE ANVÄNDARE.
+
+  ###   GÖRA TILLÅTNA ROUTES ISTÄLLET, DÅ KOMMER SAMMA
+
+  # i = 1
+  # while i < 10
+  #   restricted_paths_guest.append('users/')
+  #   restricted_paths_guest[i-1] += "#{i}"
+  #   restricted_paths_guest[i-1] += '/edit'
+  #   p "utfört"
+  #   # p restricted_paths_guest[i-1]
+  #   # p restricted_paths_guest
+  #   i += 1
+  # end
+  # p restricted_paths_guest
 
   restricted_paths_user = ['skis/new','bindings/new','helmets/new']
 
@@ -48,8 +52,13 @@ before do
   if session[:id] != 3 && restricted_paths_user.include?(request.path_info)
     redirect '/'
   end
- end
- 
+end
+
+get('/fault') do
+  @faultmsg = session[:fault]
+  session[:fault] = nil
+  slim(:fault)
+end
 
 #     HOME  ALL
 get('/') do
@@ -70,6 +79,16 @@ post('/login') do
   username = params[:username]
   password = params[:password]
 
+  userarray = select_column("users","username")
+  @usernames = []
+  userarray.each do |user|
+    @usernames<<user[0]
+  end
+  if !@usernames.include?(username)
+    session[:fault] = "Ditt användarnamn finns inte registrerat på hemsidan, försök igen."
+    redirect('/fault')
+  end
+
   result = select_password(username)
   pwdigest = result["pwdigest"]
   id = result["id"]
@@ -78,9 +97,9 @@ post('/login') do
     session[:id] = id
     session[:username] = username
     redirect('/')
-  # else
-    # session[:fault] = "login"
-    # redirect('fault')
+  else
+    session[:fault] = "Ditt användarnamn och lösenord stämde inte överens, försök igen."
+    redirect('/fault')
   end
 end
 
@@ -114,15 +133,17 @@ post('/users/new') do
     pwdigest = BCrypt::Password.create(password)
     create_user(username,pwdigest)
     redirect('/showlogin')
-  # else
-  #   session[:fault] = "register user"
-  #   redirect('fault')
+  else
+    session[:fault] = "Fälten för lösenord stämde inte överens, försök igen."
+    redirect('fault')
   end
 end
 
 #     USERS EDIT
 get('/users/:id/edit') do
-  # @id = params[:id].to_i
+  path_id = params[:id].to_i
+  check_id(path_id)
+
   ### KOLLA SÅ ATT IDn STÄMMER INNAN ÄNDRING
   @ownedskis = select_owned_skis(session[:id])
   @ownedbindings = select_owned_bindings(session[:id])
@@ -142,6 +163,8 @@ end
 #     USER UPDATE
 post('/users/:id/update') do
   # KOLLA SÅ ATT SESSION[:ID] STÄMMER MED ROUTE-ID INNAN KÖRS
+  path_id = params[:id].to_i
+  check_id(path_id)
 
   id = params[:id].to_i
   eq_id = params[:eq_id].to_i
@@ -159,7 +182,7 @@ post('/users/:id/update') do
   redirect("/users/#{user_id}/edit")
 end
 
-#     SKIS DELETE
+#     USERS DELETE
 post('/users/:id/delete') do
   #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   #   KOLLA ÄVEN SÅ ATT USER INTE ÄR ADMIN
