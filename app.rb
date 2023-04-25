@@ -76,6 +76,8 @@ get('/showlogin') do
 end
 
 post('/login') do
+  cooldown()
+
   username = params[:username]
   password = params[:password]
 

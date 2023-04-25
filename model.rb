@@ -11,6 +11,22 @@ module Model
         end
     end
 
+    def cooldown()
+        timenow = Time.now
+        if session[:time] == nil
+          session[:time] = [timenow]
+        else
+          session[:time].prepend(timenow)
+        end
+        timediff = timenow.to_i-session[:time][1].to_i
+        p session[:time]
+        p timediff
+        p session[:time].length
+        if timediff < 4 && session[:time].length > 1
+            sleep(2)
+        end
+    end
+
     ###     CONNECT TO DB
     def connect_db()
         db = SQLite3::Database.new("db/slpws23.db")
