@@ -11,3 +11,7 @@
 
     form action="/logout" method="post"
         input type="submit" value="LOGGA UT"
+
+    h2 Vill du tas bort från hemisdan?
+    form action="/users/#{session[:id]}/delete" method="post"
+        input type="submit" value="RADERA KONTO"

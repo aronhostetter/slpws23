@@ -8,73 +8,72 @@ enable :sessions
 
 include Model
 ###     KVAR ATT GÖRAS
-#       BEFORE-BLOCK OCH BEHÖRIGHETSSYSTEM
 #       YARDOC
-#       LOGGNING AV INLOGGNINGSFÖRSÖK
-#       COOLDOWN
+
 
 before do
-  p "nu körs before blocket"
-  # Lista alla begränsade routes
-  restricted_paths_guest = ['/users/1/edit', '/skis/:id/edit', '/bindings/:id/edit', '/helmets/:id/edit']
-  # restricted_paths_guest = []
+  # Lista alla tillåtna routes
+  allowed_paths_guest = ['/fault', '/', '/register', '/showlogin', '/login', '/users/new', '/users', '/skis', '/bindings', '/helmets']
 
-  ###   SKAPAS PROBLEM NÄR DEN INTE VILL ACCEPTERA DUBBELFNUTTAR, JAG MÅSTE ANVÄNDA DET FÖR ATT KUNNA KOLLA VILKA DYNAMISKA ROUTES SOM JAG MÅSTE BEGRÄNSA FÖR OINLOGGADE ANVÄNDARE.
-
-  ###   GÖRA TILLÅTNA ROUTES ISTÄLLET, DÅ KOMMER SAMMA
-
-  # i = 1
-  # while i < 10
-  #   restricted_paths_guest.append('users/')
-  #   restricted_paths_guest[i-1] += "#{i}"
-  #   restricted_paths_guest[i-1] += '/edit'
-  #   p "utfört"
-  #   # p restricted_paths_guest[i-1]
-  #   # p restricted_paths_guest
-  #   i += 1
-  # end
-  # p restricted_paths_guest
-
-  restricted_paths_user = ['skis/new','bindings/new','helmets/new']
+  restricted_paths_user = ['/skis/new','/bindings/new','/helmets/new']
 
   # BEGRÄNSNINGAR FÖR GÄSTANVÄNDARE
   # Om användaren inte är inloggad och försöker komma åt en begränsad sökväg, omdirigera dem till inloggningssidan.	Här har session[:logged_in satts till “true” vid inloggning. 
-
-  if session[:id] == nil && restricted_paths_guest.include?(request.path_info)
-    p "jag är gästanvändare"
-    redirect '/showlogin'
-  end
 
   # BEGRÄNSNINGAR FÖR REGISTRERADE ANVÄNDARE
   # Om användaren är inloggad men inte är en administratör och försöker komma åt en administratörssökväg,
   # omdirigera dem till startsidan. Här har session[:admin] satts till “true” vid inloggningen.
 
-  if session[:id] != 3 && restricted_paths_user.include?(request.path_info)
-    redirect '/'
+  if session[:id] == nil && !allowed_paths_guest.include?(request.path_info)
+    redirect '/showlogin'
+  elsif session[:id] != 3 && restricted_paths_user.include?(request.path_info)
+    session[:fault] = "Du har inte tillåtelse att ändra dessa resurser"
+    redirect '/fault'
   end
 end
 
+# Displays an error message
+#
 get('/fault') do
   @faultmsg = session[:fault]
   session[:fault] = nil
   slim(:fault)
 end
 
-#     HOME  ALL
+# Error 404 Page Not Found
+#
+not_found do
+  session[:fault] = "404 Sidan finns inte."
+  redirect('/fault')
+end
+
+# Display Landing Page
+#
 get('/') do
   slim(:index)
 end
 
 #     USERS
 
+# Displays a register form
+#
 get('/register') do
   slim(:register)
 end
 
+# Displays a login form
+#
 get('/showlogin') do
   slim(:login)
 end
 
+# Attempts login and updates the session
+# @param [String] password, The typed password
+# @param [String] username, The typed username
+# @see Model#cooldown
+# @see Model#select_column
+# @see Model#select_password
+#
 post('/login') do
   cooldown()
 
@@ -105,17 +104,28 @@ post('/login') do
   end
 end
 
+# Logout and updates the session
+#
 post('/logout') do
   session[:id] = nil
   session[:username] = nil
   redirect('/')
 end
 
+# Displays all users
+# @see Model#select_all
+#
 get('/users') do
   @users = select_all("users")
   slim(:"users/index")
 end
 
+# Displays one users equipment
+# @see Model#select_all_id
+# @see Model#select_owned_bindings
+# @see Model#select_owned_skis
+# @see Model#select_owned_helmets
+#
 get('/users/:id') do
   id = params[:id].to_i
   @user = select_all_id("users",id)
@@ -125,6 +135,12 @@ get('/users/:id') do
   slim(:"users/show")
 end
 
+# Registers new user after register route
+# @param [String] username, The typed username
+# @param [String] password, The typed password  
+# @param [String] password_confirm, A confirmation of the password
+# @see Model#create_user
+#
 post('/users/new') do
   username = params[:username]
   password = params[:password]
@@ -137,16 +153,20 @@ post('/users/new') do
     redirect('/showlogin')
   else
     session[:fault] = "Fälten för lösenord stämde inte överens, försök igen."
-    redirect('fault')
+    redirect('/fault')
   end
 end
 
 #     USERS EDIT
-get('/users/:id/edit') do
-  path_id = params[:id].to_i
-  check_id(path_id)
 
-  ### KOLLA SÅ ATT IDn STÄMMER INNAN ÄNDRING
+# Shows and lets user change the owned inventory
+# @see Model#select_owned_skis
+# @see Model#select_owned_bindings
+# @see Model#select_owned_helmets
+# @see Model#select_all
+#
+get('/users/:id/edit') do
+  ###   EFTERSOM HELA EDIT SIDAN BASERAS PÅ DEN INLOGGADE ANVÄNDARENS SESSION[:ID] SÅ KOMMER DET INTE GÅ ATT ÄNDRA ANDRAS RESURSER GENOM ATT ÄNDRA I SÖKVÄGEN. ALLTSÅ BEHÖVS INGEN CHECK AV ID HÄR.
   @ownedskis = select_owned_skis(session[:id])
   @ownedbindings = select_owned_bindings(session[:id])
   @ownedhelmets = select_owned_helmets(session[:id])
@@ -163,12 +183,21 @@ get('/users/:id/edit') do
 end
 
 #     USER UPDATE
+
+# Registers new user after register route
+# @param [Integer] path_id, The user-id in the search path
+# @see Model#check_id
+# @param [Integer] eq_id, The id of equipment that is affected by the previous form.
+# @param [String] action, The wanted action from the previous form.
+# @param [String] category, The category of the affected equipment.
+# @param [String] user_id, The logged in user.
+# @see Model#remove_from_equipment
+# @see Model#add_to_equipment
+#
 post('/users/:id/update') do
-  # KOLLA SÅ ATT SESSION[:ID] STÄMMER MED ROUTE-ID INNAN KÖRS
   path_id = params[:id].to_i
   check_id(path_id)
 
-  id = params[:id].to_i
   eq_id = params[:eq_id].to_i
   action = params[:action]
   category = params[:category]
@@ -185,10 +214,19 @@ post('/users/:id/update') do
 end
 
 #     USERS DELETE
+
+# Registers new user after register route
+# @param [String] id, The user-id in the search path
+# @see Model#check_id
+# @see Model#delete_all_id
+#
 post('/users/:id/delete') do
-  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
-  #   KOLLA ÄVEN SÅ ATT USER INTE ÄR ADMIN
   id = params[:id].to_i
+  if id == 3
+    session[:fault] = "ADMIN kan inte tas bort från hemsidan"
+    redirect('/fault')
+  end
+  check_id(id)
   delete_all_id("user",id)
   redirect('/users')
 end
@@ -196,17 +234,37 @@ end
 #     CRUD SKIS
 
 #     SKIS VIEW
+
+# Displays all skis
+# @see Model#select_all
+#
 get('/skis') do
   @skis = select_all("skis")
   slim(:"skis/index")
 end
 
 #     SKIS GET NEW
+
+# Displays form to add new skis to the website
+#
 get('/skis/new') do
   slim(:"skis/new")
 end
 
 #     SKIS  POST NEW
+
+# Registers new ski after get route with form
+# @param [String] modelname, The typed modelname
+# @param [String] brand, The typed brand
+# @param [Integer] length, The typed lenght
+# @param [Integer] frontwidth, The typed frontwidth
+# @param [Integer] waistwidth, The typed waistwidth
+# @param [Integer] tailwidth, The typed tailwidth
+# @param [String] skitype, The chosen skitype
+# @see Model#check_input
+# @see Model#check_input
+# @see Model#insert_skis
+#
 post('/skis/new') do
   modelname = params[:modelname]
   brand = params[:brand]
@@ -216,28 +274,45 @@ post('/skis/new') do
   tailwidth = params[:tailwidth]
   skitype = params[:skitype]
 
+  check_input(modelname)
+  check_input(brand)
+
   insert_skis(brand,modelname,skitype,length,frontwidth,waistwidth,tailwidth)
-  redirect('/skis')
-  
-  # user_id = session[:id].to_i
-  # if content != " "
-  # else
-  #   session[:fault] = "ski name"
-  #   redirect('fault')
-  # end
+  redirect('/skis') 
 end
 
 #     SKIS DELETE
+
+# Deletes skis from website
+# @param [Integer] id, The user-id in the search path
+# @see Model#check_id
+# @see Model#delete_all_id
+#
 post('/skis/:id/delete') do
-  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   id = params[:id].to_i
+  check_id(id)
   delete_all_id("ski",id)
   redirect('/skis')
 end
 
 #     SKIS UPDATE
+
+# Updates ski after get route with form
+# @param [Integer] path_id, The user-id in the search path
+# @param [String] modelname, The typed modelname
+# @param [String] brand, The typed brand
+# @param [Integer] length, The typed lenght
+# @param [Integer] frontwidth, The typed frontwidth
+# @param [Integer] waistwidth, The typed waistwidth
+# @param [Integer] tailwidth, The typed tailwidth
+# @param [String] skitype, The chosen skitype
+# @see Model#check_id
+# @see Model#check_input
+# @see Model#check_input
+# @see Model#update_skis
+#
 post('/skis/:id/update') do
-  id = params[:id].to_i  
+  id = params[:id].to_i
   modelname = params[:modelname]
   brand = params[:brand]
   length = params[:length]
@@ -246,24 +321,23 @@ post('/skis/:id/update') do
   tailwidth = params[:tailwidth]
   skitype = params[:skitype]
   
+  check_id(id)
+  check_input(modelname)
+  check_input(brand)
+
   update_skis(id,brand,modelname,length,frontwidth,waistwidth,tailwidth,skitype)
   redirect('/skis')
-
-  # if content != " "
-  #   db = SQLite3::Database.new("db/slpws23.db")
-  #   db.execute("UPDATE skis SET content = ? WHERE id = ?",content,id)
-  #   redirect('/skis')
-  # else
-  #   session[:fault] = "ski name"
-  #   redirect('fault')
-  # end
 end
 
 #     SKIS EDIT
+
+# Shows form to edit skis
+# @param [Integer] @id, The user-id in the search path
+# @see Model#check_id
+# @see Model#select_all_id
+#
 get('/skis/:id/edit') do
   @id = params[:id].to_i
-  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
-  p @ski
   @ski = select_all_id("skis",@id)[0]
   slim(:"skis/edit")
 end
@@ -271,36 +345,76 @@ end
 #     CRUD HELMETS
 #
 #     HELMETS  VIEW
+
+# Displays all helmets
+# @see Model#select_all
+#
 get('/helmets') do
   @helmets = select_all("helmets")
   slim(:"helmets/index")
 end
 
 #     HELMETS GET NEW
+
+# Displays form to add new helmets to the website
+#
 get('/helmets/new') do
   slim(:"helmets/new")
 end
 
 #     HELMETS POST NEW
+
+# Registers new helmet after get route with form
+# @param [String] modelname, The typed modelname
+# @param [String] brand, The typed brand
+# @param [Integer] mips, The chosen mips alternative
+# @param [String] color, The typed color
+# @see Model#check_input
+# @see Model#check_input
+# @see Model#check_input
+# @see Model#insert_helmets
+#
 post('/helmets/new') do
   modelname = params[:modelname]
   brand = params[:brand]
   mips = params[:mips]
   color = params[:color]
 
+  check_input(modelname)
+  check_input(brand)
+  check_input(color)
+
   insert_helmets(brand,modelname,mips,color)
   redirect('/helmets')
 end
 
 #     HELMETS DELETE
+
+# Deletes helmets from website
+# @param [Integer] id, The user-id in the search path
+# @see Model#check_id
+# @see Model#delete_all_id
+#
 post('/helmets/:id/delete') do
   #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   id = params[:id].to_i
+  check_id(id)
   delete_all_id("helmet",id)
   redirect('/helmets')
 end
 
 #     HELMETS UPDATE
+
+# Updates helmet after get route with form
+# @param [String] modelname, The typed modelname
+# @param [String] brand, The typed brand
+# @param [Integer] mips, The chosen mips alternative
+# @param [String] color, The typed color
+# @see Model#check_id
+# @see Model#check_input
+# @see Model#check_input
+# @see Model#update_helmets
+#
 post('/helmets/:id/update') do
   id = params[:id].to_i
   modelname = params[:modelname]
@@ -308,14 +422,23 @@ post('/helmets/:id/update') do
   mips = params[:mips]
   color = params[:color]
   
+  check_id(id)
+  check_input(modelname)
+  check_input(brand)
+
   update_helmets(id,brand,modelname,mips,color)
   redirect('/helmets')
 end
 
 #     HELMETS EDIT
+
+# Shows form to edit helmets
+# @param [Integer] @id, The user-id in the search path
+# @see Model#check_id
+# @see Model#select_all_id
+#
 get('/helmets/:id/edit') do
   @id = params[:id].to_i
-  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
   @helmet = select_all_id("helmets",@id)[0]
   slim(:"helmets/edit")
 end
@@ -323,36 +446,72 @@ end
 #     CRUD bindings
 #
 #     BINDINGS  VIEW
+
+# Displays all bindings
+# @see Model#select_all
+#
 get('/bindings') do
   @bindings = select_all("bindings")
   slim(:"bindings/index")
 end
 
 #     BINDINGS  GET NEW
+
+# Displays form to add new binding to the website
+#
 get('/bindings/new') do
   slim(:"bindings/new")
 end
 
 #     BINDINGS  POST NEW
+
+# Registers new binding after get route with form
+# @param [String] modelname, The typed modelname
+# @param [String] brand, The typed brand
+# @param [String] type, The chosen type
+# @param [Integer] weight, The typed weight
+# @see Model#check_input
+# @see Model#check_input
+# @see Model#insert_bindings
+#
 post('/bindings/new') do
   modelname = params[:modelname]
   brand = params[:brand]
   type = params[:type]
   weight = params[:weight]
 
+  check_input(modelname)
+  check_input(brand)
+
   insert_bindings(brand,modelname,type,weight)
   redirect('/bindings')
 end
 
 #     BINDINGS  DELETE
+
+# Deletes bindings from website
+# @param [Integer] id, The user-id in the search path
+# @see Model#check_id
+# @see Model#delete_all_id
+#
 post('/bindings/:id/delete') do
-  #   KOLLA SÅ ATT ID STÄMMER MED PARAMS INNAN DELETE
   id = params[:id].to_i
+  check_id(id)
   delete_all_id("binding",id)
   redirect('/bindings')
 end
 
 #     BINDINGS UPDATE
+
+# Updates binding after get route with form
+# @param [String] modelname, The typed modelname
+# @param [String] brand, The typed brand
+# @param [Integer] mips, The chosen mips alternative
+# @param [String] color, The typed color
+# @see Model#check_id
+# @see Model#check_input
+# @see Model#update_bindings
+#
 post('/bindings/:id/update') do
   id = params[:id].to_i  
   modelname = params[:modelname]
@@ -360,14 +519,23 @@ post('/bindings/:id/update') do
   type = params[:type]
   weight = params[:weight]
   
+  check_id(id)
+  check_input(modelname)
+  check_input(brand)
+
   update_bindings(id,brand,modelname,type,weight)
   redirect('/bindings')
 end
 
 #     BINDINGS EDIT
+
+# Shows form to edit helmets
+# @param [Integer] @id, The user-id in the search path
+# @see Model#check_id
+# @see Model#select_all_id
+#
 get('/bindings/:id/edit') do
   @id = params[:id].to_i
-  # ÅTGÄRDA ATT DET BLIR ARRAY I ARRAY NEDAN, FRÅGA EMIL
   @binding = select_all_id("bindings",@id)[0]
   slim(:"bindings/edit")
 end

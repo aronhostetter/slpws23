@@ -7,6 +7,3 @@ h2 Alla användare!
                 li.user
                     h3 Användarnamn:
                     p = user["username"]
-                    -if session[:id] == 3 && session[:username] == "admin"
-                        form action="/users/#{user['id']}/delete" method="post"
-                            input type="submit" value="ta bort"

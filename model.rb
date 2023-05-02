@@ -1,13 +1,16 @@
 module Model
     ###     VALIDATE INPUTS
     def check_input(input)
-        return input == " "
+        if input == " "
+            session[:fault] = "Input måste bestå av minst ett tecken annat än mellanslag"
+            redirect('/fault')
+        end
     end
 
     def check_id(id)
         if id != session[:id]
             session[:fault] = "Du har inte behörighet att ändra denna resurs."
-            redirect('fault')
+            redirect('/fault')
         end
     end
 
@@ -19,9 +22,6 @@ module Model
           session[:time].prepend(timenow)
         end
         timediff = timenow.to_i-session[:time][1].to_i
-        p session[:time]
-        p timediff
-        p session[:time].length
         if timediff < 4 && session[:time].length > 1
             sleep(2)
         end
@@ -36,7 +36,6 @@ module Model
     ###     GENERELL SQL
 
     def select_all(category)
-        # p category
         db = connect_db()
         db.results_as_hash = true
         return db.execute("SELECT * FROM #{category}")
@@ -48,7 +47,6 @@ module Model
     end
 
     def select_all_id(category,id)
-        # p category,id
         db = connect_db()
         db.results_as_hash = true
         return db.execute("SELECT * FROM #{category} WHERE id = ?", id)
@@ -87,13 +85,11 @@ module Model
     def remove_from_equipment(category,user_id,eq_id)
         db = connect_db()
         db.execute("DELETE FROM relations_user_#{category} WHERE user_id = ? AND #{category}_id = ?",user_id,eq_id)
-        p "ta bort"
     end
 
     def add_to_equipment(category,user_id,eq_id)
         db = connect_db()
         db.execute("INSERT INTO relations_user_#{category} (user_id,#{category}_id) VALUES (?,?)",user_id,eq_id)
-        p "lägg till"
     end
 
     ###     SKIS
@@ -137,13 +133,11 @@ module Model
     ###     HELMETS
 
     def insert_helmets(brand,modelname,mips,color)
-        # p brand,modelname,mips,color
         db = connect_db()
         db.execute("INSERT INTO helmets (modelname,brand,mips,color) VALUES (?,?,?,?)",modelname,brand,mips,color)
     end
 
     def update_helmets(id,brand,modelname,mips,color)
-        # p modelname,brand,mips,color,id
         db = connect_db()
         db.execute("UPDATE helmets SET modelname = ?,brand = ?,mips = ?,color = ? WHERE id = ?",modelname,brand,mips,color,id)
     end
@@ -175,13 +169,11 @@ module Model
     ###     BINDINGS
 
     def insert_bindings(brand,modelname,type,weight)
-        # p brand,modelname,type,weight
         db = connect_db()
         db.execute("INSERT INTO bindings (modelname,brand,type,weight) VALUES (?,?,?,?)",modelname,brand,type,weight)
     end
 
     def update_bindings(id,brand,modelname,type,weight)
-        # p id,brand,modelname,type,weight
         db = connect_db()
         db.execute("UPDATE bindings SET modelname = ?,brand = ?,type = ?,weight = ? WHERE id = ?",modelname,brand,type,weight,id)
     end
