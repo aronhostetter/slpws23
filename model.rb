@@ -1,5 +1,9 @@
 module Model
     ###     VALIDATE INPUTS
+
+    # Checks so that input is more than blankspace
+    #
+    # @param [String] input from form
     def check_input(input)
         if input == " "
             session[:fault] = "Input måste bestå av minst ett tecken annat än mellanslag"
@@ -7,6 +11,9 @@ module Model
         end
     end
 
+    # Checks so that id from path is the same as the logged in user
+    #
+    # @param [Integer] input from form
     def check_id(id)
         if id != session[:id]
             session[:fault] = "Du har inte behörighet att ändra denna resurs."
@@ -14,6 +21,8 @@ module Model
         end
     end
 
+    # Checks so that previous attempt is more than 4 seconds ago
+    #
     def cooldown()
         timenow = Time.now
         if session[:time] == nil
@@ -28,12 +37,17 @@ module Model
     end
 
     ###     CONNECT TO DB
+
+    # Connects to the database
+    #
+    # @return [String] variable containing link to database
     def connect_db()
         db = SQLite3::Database.new("db/slpws23.db")
         return db
     end
 
     ###     GENERELL SQL
+
 
     def select_all(category)
         db = connect_db()

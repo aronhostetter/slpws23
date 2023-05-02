@@ -496,7 +496,6 @@ end
 #
 post('/bindings/:id/delete') do
   id = params[:id].to_i
-  check_id(id)
   delete_all_id("binding",id)
   redirect('/bindings')
 end
